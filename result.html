@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>识别结果 - 多模态经济林果实病害识别系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f9fc;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .result-section {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #2E7D32;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #E8F5E9;
+        }
+        
+        .input-summary {
+            background-color: #F9F9F9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-item {
+            margin-bottom: 10px;
+            display: flex;
+        }
+        
+        .summary-label {
+            font-weight: 600;
+            width: 120px;
+            color: #555;
+        }
+        
+        .disease-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s;
+        }
+        
+        .disease-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .disease-rank {
+            width: 30px;
+            height: 30px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .disease-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-right: 20px;
+        }
+        
+        .disease-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .disease-info {
+            flex: 1;
+        }
+        
+        .disease-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .disease-desc {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        
+        .disease-probability {
+            display: flex;
+            align-items: center;
+        }
+        
+        .probability-bar {
+            flex: 1;
+            height: 8px;
+            background-color: #E0E0E0;
+            border-radius: 4px;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+        
+        .probability-value {
+            width: 60px;
+            text-align: right;
+            font-weight: 600;
+            color: #2E7D32;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .back-btn {
+            background-color: #757575;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .back-btn:hover {
+            background-color: #616161;
+        }
+        
+        .new-identify-btn {
+            background-color: #FF9800;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .new-identify-btn:hover {
+            background-color: #F57C00;
+        }
+        
+        @media (max-width: 768px) {
+            .disease-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .disease-image {
+                margin-bottom: 15px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>病害识别结果</h1>
+            <p class="subtitle">基于多模态数据的智能分析</p >
+        </header>
+        
+        <div class="result-section">
+            <h2 class="section-title">输入信息摘要</h2>
+            <div class="input-summary" id="inputSummary">
+                <!-- 这里将通过JavaScript动态填充 -->
+            </div>
+            
+            <h2 class="section-title">识别结果</h2>
+            <div id="diseaseResults">
+                <!-- 这里将通过JavaScript动态填充 -->
+            </div>
+            
+            <div class="action-buttons">
+                <button class="back-btn" id="backBtn">返回重新识别</button>
+                <button class="new-identify-btn" id="newIdentifyBtn">新的识别</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const backBtn = document.getElementById('backBtn');
+            const newIdentifyBtn = document.getElementById('newIdentifyBtn');
+            const inputSummary = document.getElementById('inputSummary');
+            const diseaseResults = document.getElementById('diseaseResults');
+            
+            // 模拟的识别结果数据
+            const mockResults = [
+                {
+                    name: "炭疽病",
+                    probability: 85,
+                    description: "果实表面出现圆形或不规则形褐色病斑，后期病斑凹陷，中央产生黑色小点",
+                    image: "https://via.placeholder.com/80?text=Anthracnose"
+                },
+                {
+                    name: "褐斑病",
+                    probability: 72,
+                    description: "叶片和果实上出现褐色斑点，边缘清晰，后期病斑扩大并融合",
+                    image: "https://via.placeholder.com/80?text=Brown+Spot"
+                },
+                {
+                    name: "黑斑病",
+                    probability: 65,
+                    description: "果实表面出现黑色圆形病斑，病斑略微凹陷，边缘有黄色晕圈",
+                    image: "https://via.placeholder.com/80?text=Black+Spot"
+                },
+                {
+                    name: "白粉病",
+                    probability: 58,
+                    description: "果实和叶片表面覆盖白色粉状霉层，后期病斑变褐坏死",
+                    image: "https://via.placeholder.com/80?text=Powdery+Mildew"
+                },
+                {
+                    name: "轮纹病",
+                    probability: 45,
+                    description: "果实表面出现同心轮纹状褐色病斑，病斑逐渐扩大并凹陷",
+                    image: "https://via.placeholder.com/80?text=Ring+Spot"
+                }
+            ];
+            
+            // 从sessionStorage获取输入数据
+            const diseaseData = JSON.parse(sessionStorage.getItem('diseaseData') || '{}');
+            
+            // 显示输入摘要
+            if (diseaseData.image) {
+                inputSummary.innerHTML = `
+                    <div class="summary-item">
+                        <span class="summary-label">上传图像:</span>
+                        <span>${diseaseData.image}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">病害描述:</span>
+                        <span>${diseaseData.description}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">天气状况:</span>
+                        <span>温度: ${diseaseData.temperature}°C, 湿度: ${diseaseData.humidity}%, 太阳辐射: ${diseaseData.radiation}W/m², 降水量: ${diseaseData.precipitation}mm</span>
+                    </div>
+                `;
+            } else {
+                inputSummary.innerHTML = '<p>未找到输入数据，请返回重新输入。</p >';
+            }
+            
+            // 显示识别结果
+            mockResults.forEach((disease, index) => {
+                const diseaseItem = document.createElement('div');
+                diseaseItem.className = 'disease-item';
+                
+                diseaseItem.innerHTML = `
+                    <div class="disease-rank">${index + 1}</div>
+                    <div class="disease-image">
+                        < img src="${disease.image}" alt="${disease.name}">
+                    </div>
+                    <div class="disease-info">
+                        <div class="disease-name">${disease.name}</div>
+                        <div class="disease-desc">${disease.description}</div>
+                        <div class="disease-probability">
+                            <div class="probability-bar">
+                                <div style="width: ${disease.probability}%; height: 100%; background-color: #4CAF50;"></div>
+                            </div>
+                            <div class="probability-value">${disease.probability}%</div>
+                        </div>
+                    </div>
+                `;
+                
+                diseaseResults.appendChild(diseaseItem);
+            });
+            
+            // 按钮事件
+            backBtn.addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+            
+            newIdentifyBtn.addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+        });
+    </script>
+</body>
+</html>

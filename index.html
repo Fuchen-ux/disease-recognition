@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多模态经济林果实病害识别系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f9fc;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        
+        .input-section {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .qr-section {
+            flex: 0 0 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #2E7D32;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #E8F5E9;
+        }
+        
+        .upload-area {
+            border: 2px dashed #4CAF50;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            margin-bottom: 25px;
+            background-color: #F1F8E9;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            background-color: #E8F5E9;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        .upload-text {
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .upload-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background-color: #388E3C;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+        
+        textarea, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        textarea:focus, input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        
+        .weather-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .identify-btn {
+            background-color: #FF9800;
+            color: white;
+            border: none;
+            padding: 14px 0;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        
+        .identify-btn:hover {
+            background-color: #F57C00;
+        }
+        
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            background-color: #f0f0f0;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .qr-code img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+        
+        .qr-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .qr-section {
+                order: -1;
+            }
+            
+            .weather-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>多模态经济林果实病害实时识别系统</h1>
+            <p class="subtitle">基于图像、特征描述与天气状况的智能病害识别</p >
+        </header>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <h2 class="section-title">病害信息录入</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <p class="upload-text">点击或拖拽上传病害图像</p >
+                    <p class="upload-text" style="font-size: 0.9rem; color: #777;">支持 JPG、PNG 格式，最大 5MB</p >
+                    <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                    <button class="upload-btn" id="uploadBtn">选择图像</button>
+                </div>
+                
+                <div class="form-group">
+                    <label for="diseaseDesc">病害特征描述</label>
+                    <textarea id="diseaseDesc" rows="4" placeholder="请详细描述病害特征，例如：果实表面出现褐色斑点，逐渐扩大并凹陷..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>天气实时状况</label>
+                    <div class="weather-grid">
+                        <div>
+                            <label for="temperature">温度 (°C)</label>
+                            <input type="number" id="temperature" placeholder="25">
+                        </div>
+                        <div>
+                            <label for="humidity">湿度 (%)</label>
+                            <input type="number" id="humidity" placeholder="65">
+                        </div>
+                        <div>
+                            <label for="radiation">太阳辐射 (W/m²)</label>
+                            <input type="number" id="radiation" placeholder="450">
+                        </div>
+                        <div>
+                            <label for="precipitation">降水量 (mm)</label>
+                            <input type="number" id="precipitation" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="identify-btn" id="identifyBtn">开始识别</button>
+            </div>
+            
+            <div class="qr-section">
+                <h2 class="section-title">系统访问二维码</h2>
+                <div class="qr-code">
+                    <!-- 这里实际使用时需要替换为真实的二维码 -->
+                    <div style="text-align: center; color: #666;">
+                        <div style="font-size: 80px;">📱</div>
+                        <div style="font-size: 14px; margin-top: 10px;">扫描二维码访问系统</div>
+                    </div>
+                </div>
+                <p class="qr-text">使用手机扫描二维码<br>随时随地识别果实病害</p >
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadArea = document.getElementById('uploadArea');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const imageUpload = document.getElementById('imageUpload');
+            const identifyBtn = document.getElementById('identifyBtn');
+            
+            // 上传图片功能
+            uploadBtn.addEventListener('click', function() {
+                imageUpload.click();
+            });
+            
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.style.backgroundColor = '#E8F5E9';
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.style.backgroundColor = '#F1F8E9';
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.style.backgroundColor = '#F1F8E9';
+                
+                if (e.dataTransfer.files.length) {
+                    imageUpload.files = e.dataTransfer.files;
+                    handleImageUpload(e.dataTransfer.files[0]);
+                }
+            });
+            
+            imageUpload.addEventListener('change', function() {
+                if (this.files.length) {
+                    handleImageUpload(this.files[0]);
+                }
+            });
+            
+            function handleImageUpload(file) {
+                // 这里实际应用中应该上传到服务器
+                // 这里只是模拟上传成功
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadArea.innerHTML = `
+                        <div style="text-align: center;">
+                            <div style="font-size: 48px; color: #4CAF50;">✓</div>
+                            <p style="margin: 10px 0;">图像上传成功</p >
+                            <p style="font-size: 0.9rem; color: #777;">${file.name}</p >
+                            <button class="upload-btn" id="changeImageBtn">更换图像</button>
+                        </div>
+                    `;
+                    
+                    document.getElementById('changeImageBtn').addEventListener('click', function() {
+                        imageUpload.click();
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            // 识别按钮点击事件 - 跳转到结果页面
+            identifyBtn.addEventListener('click', function() {
+                // 验证输入
+                if (!imageUpload.files.length) {
+                    alert('请先上传病害图像');
+                    return;
+                }
+                
+                if (!document.getElementById('diseaseDesc').value.trim()) {
+                    alert('请输入病害特征描述');
+                    return;
+                }
+                
+                // 收集数据
+                const formData = {
+                    image: imageUpload.files[0].name,
+                    description: document.getElementById('diseaseDesc').value,
+                    temperature: document.getElementById('temperature').value || '25',
+                    humidity: document.getElementById('humidity').value || '65',
+                    radiation: document.getElementById('radiation').value || '450',
+                    precipitation: document.getElementById('precipitation').value || '0'
+                };
+                
+                // 存储数据到sessionStorage，以便结果页面使用
+                sessionStorage.setItem('diseaseData', JSON.stringify(formData));
+                
+                // 跳转到结果页面
+                window.location.href = 'result.html';
+            });
+        });
+    </script>
+</body>
+</html>
