@@ -70,6 +70,7 @@
         .summary-item {
             margin-bottom: 10px;
             display: flex;
+            flex-wrap: wrap;
         }
         
         .summary-label {
@@ -78,9 +79,49 @@
             color: #555;
         }
         
+        .summary-value {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .weather-advice {
+            background-color: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0 30px;
+        }
+        
+        .advice-title {
+            font-weight: 600;
+            color: #2E7D32;
+            margin-bottom: 8px;
+        }
+        
+        .disease-advice {
+            background-color: #FFF8E1;
+            border-left: 4px solid #FF9800;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 10px 0;
+        }
+        
+        .disease-advice-title {
+            font-weight: 600;
+            color: #E65100;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        
+        .disease-advice-content {
+            color: #6D4C41;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
         .disease-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             padding: 15px;
             border-bottom: 1px solid #eee;
             transition: background-color 0.3s;
@@ -101,6 +142,7 @@
             justify-content: center;
             font-weight: bold;
             margin-right: 15px;
+            margin-top: 2px;
         }
         
         .disease-image {
@@ -136,6 +178,7 @@
         .disease-probability {
             display: flex;
             align-items: center;
+            margin-bottom: 8px;
         }
         
         .probability-bar {
@@ -216,12 +259,15 @@
         <div class="result-section">
             <h2 class="section-title">输入信息摘要</h2>
             <div class="input-summary" id="inputSummary">
-                <!-- 这里将通过JavaScript动态填充 -->
+            </div>
+
+            <div class="weather-advice" id="weatherAdvice">
+                <div class="advice-title">📌 天气相关病害防治建议</div>
+                <div id="weatherAdviceContent">正在生成建议...</div>
             </div>
             
-            <h2 class="section-title">识别结果</h2>
+            <h2 class="section-title">识别结果（按匹配度排序）</h2>
             <div id="diseaseResults">
-                <!-- 这里将通过JavaScript动态填充 -->
             </div>
             
             <div class="action-buttons">
@@ -237,66 +283,83 @@
             const newIdentifyBtn = document.getElementById('newIdentifyBtn');
             const inputSummary = document.getElementById('inputSummary');
             const diseaseResults = document.getElementById('diseaseResults');
-            
-            // 模拟的识别结果数据
-            const mockResults = [
+            const weatherAdviceContent = document.getElementById('weatherAdviceContent');
+
+            const diseaseDataList = [
                 {
                     name: "炭疽病",
                     probability: 85,
                     description: "果实表面出现圆形或不规则形褐色病斑，后期病斑凹陷，中央产生黑色小点",
-                    image: "https://via.placeholder.com/80?text=Anthracnose"
+                    image: "https://via.placeholder.com/80?text=Anthracnose",
+                    advice: "① 农业防治：及时清除病果、病叶，减少病原菌；② 化学防治：发病初期喷施咪鲜胺或苯醚甲环唑，7-10天1次，连喷2-3次；③ 物理防治：果实套袋，避免病原菌接触。"
                 },
                 {
                     name: "褐斑病",
                     probability: 72,
                     description: "叶片和果实上出现褐色斑点，边缘清晰，后期病斑扩大并融合",
-                    image: "https://via.placeholder.com/80?text=Brown+Spot"
+                    image: "https://via.placeholder.com/80?text=Brown+Spot",
+                    advice: "① 农业防治：合理修剪，改善通风透光条件；② 化学防治：喷施代森锰锌或吡唑醚菌酯，重点喷洒叶片背面和果实；③ 施肥管理：增施磷钾肥，提高树体抗病性。"
                 },
                 {
                     name: "黑斑病",
                     probability: 65,
                     description: "果实表面出现黑色圆形病斑，病斑略微凹陷，边缘有黄色晕圈",
-                    image: "https://via.placeholder.com/80?text=Black+Spot"
+                    image: "https://via.placeholder.com/80?text=Black+Spot",
+                    advice: "① 农业防治：冬季清园，烧毁病残体；② 化学防治：发病初期用戊唑醇或醚菌酯喷雾，间隔10天喷1次；③ 水分管理：避免果园积水，降低田间湿度。"
                 },
                 {
                     name: "白粉病",
                     probability: 58,
                     description: "果实和叶片表面覆盖白色粉状霉层，后期病斑变褐坏死",
-                    image: "https://via.placeholder.com/80?text=Powdery+Mildew"
+                    image: "https://via.placeholder.com/80?text=Powdery+Mildew",
+                    advice: "① 农业防治：及时摘除病叶病果，集中深埋；② 化学防治：喷施三唑酮或氟硅唑，注意均匀喷雾；③ 环境调控：加强通风，降低空气湿度至60%以下。"
                 },
                 {
                     name: "轮纹病",
                     probability: 45,
                     description: "果实表面出现同心轮纹状褐色病斑，病斑逐渐扩大并凹陷",
-                    image: "https://via.placeholder.com/80?text=Ring+Spot"
+                    image: "https://via.placeholder.com/80?text=Ring+Spot",
+                    advice: "① 农业防治：冬季刮除枝干病瘤，涂抹腐殖酸铜；② 化学防治：谢花后喷施代森锌或苯甲·丙环唑；③ 果实保护：幼果期进行套袋，减少侵染机会。"
                 }
             ];
-            
-            // 从sessionStorage获取输入数据
-            const diseaseData = JSON.parse(sessionStorage.getItem('diseaseData') || '{}');
-            
-            // 显示输入摘要
-            if (diseaseData.image) {
+
+            function shuffleArray(array) {
+                const newArray = [...array];
+                for (let i = newArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+                }
+                return newArray.sort((a, b) => b.probability - a.probability);
+            }
+            const randomDiseaseList = shuffleArray(diseaseDataList);
+
+            const diseaseInputData = JSON.parse(sessionStorage.getItem('diseaseData') || '{}');
+            if (diseaseInputData.image) {
                 inputSummary.innerHTML = `
                     <div class="summary-item">
                         <span class="summary-label">上传图像:</span>
-                        <span>${diseaseData.image}</span>
+                        <span class="summary-value">${diseaseInputData.image}</span>
                     </div>
                     <div class="summary-item">
                         <span class="summary-label">病害描述:</span>
-                        <span>${diseaseData.description}</span>
+                        <span class="summary-value">${diseaseInputData.description}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">监测城市:</span>
+                        <span class="summary-value">${diseaseInputData.city || '未知城市'}</span>
                     </div>
                     <div class="summary-item">
                         <span class="summary-label">天气状况:</span>
-                        <span>温度: ${diseaseData.temperature}°C, 湿度: ${diseaseData.humidity}%, 太阳辐射: ${diseaseData.radiation}W/m², 降水量: ${diseaseData.precipitation}mm</span>
+                        <span class="summary-value">温度: ${diseaseInputData.temperature}°C, 湿度: ${diseaseInputData.humidity}%, 太阳辐射: ${diseaseInputData.radiation}W/m², 降水量: ${diseaseInputData.precipitation}mm</span>
                     </div>
                 `;
+                generateWeatherAdvice(diseaseInputData);
             } else {
                 inputSummary.innerHTML = '<p>未找到输入数据，请返回重新输入。</p >';
+                weatherAdviceContent.textContent = "无天气数据，无法生成建议";
             }
-            
-            // 显示识别结果
-            mockResults.forEach((disease, index) => {
+
+            randomDiseaseList.forEach((disease, index) => {
                 const diseaseItem = document.createElement('div');
                 diseaseItem.className = 'disease-item';
                 
@@ -314,17 +377,43 @@
                             </div>
                             <div class="probability-value">${disease.probability}%</div>
                         </div>
+                        <div class="disease-advice">
+                            <div class="disease-advice-title">🟠 ${disease.name}防治建议</div>
+                            <div class="disease-advice-content">${disease.advice}</div>
+                        </div>
                     </div>
                 `;
                 
                 diseaseResults.appendChild(diseaseItem);
             });
-            
-            // 按钮事件
+
+            function generateWeatherAdvice(weatherData) {
+                const temp = parseInt(weatherData.temperature) || 25;
+                const humidity = parseInt(weatherData.humidity) || 65;
+                const precipitation = parseInt(weatherData.precipitation) || 0;
+                let advice = "";
+                
+                if (humidity > 75 && precipitation > 0) {
+                    advice += "1. 当前湿度高且有降水，易诱发炭疽病、褐斑病等真菌病害，建议及时排出果园积水，避免果实长时间湿润；";
+                    advice += "<br>2. 雨后可喷施保护性杀菌剂（如波尔多液），降低病害扩散风险；";
+                } else if (temp > 30 && humidity > 70) {
+                    advice += "1. 高温高湿环境易导致白粉病爆发，建议加强果园通风，修剪过密枝条；";
+                    advice += "<br>2. 可选用醚菌酯类药剂喷雾防治，注意避开正午高温时段施药；";
+                } else if (temp < 15) {
+                    advice += "1. 当前气温较低，病害发展缓慢，但需注意果实储存环境的温湿度控制，避免低温高湿导致腐烂；";
+                    advice += "<br>2. 可提前喷施保护性药剂，为果实提供防护，应对后续气温回升可能引发的病害；";
+                } else {
+                    advice += "1. 当前天气条件适宜，病害发生风险较低，建议保持果园常规管理，定期巡查果实状态；";
+                    advice += "<br>2. 可根据果树生长阶段，补充磷钾肥，增强果实抗病能力；";
+                }
+                
+                weatherAdviceContent.innerHTML = advice;
+            }
+
             backBtn.addEventListener('click', function() {
                 window.location.href = 'index.html';
             });
-            
+
             newIdentifyBtn.addEventListener('click', function() {
                 window.location.href = 'index.html';
             });
