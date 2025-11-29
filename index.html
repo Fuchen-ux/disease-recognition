@@ -59,17 +59,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
         
-        .qr-section {
-            flex: 0 0 300px;
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-        
         .section-title {
             font-size: 1.4rem;
             margin-bottom: 20px;
@@ -130,7 +119,7 @@
             color: #444;
         }
         
-        textarea, input[type="text"], input[type="number"] {
+        textarea, input[type="text"], input[type="number"], select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -139,7 +128,7 @@
             transition: border 0.3s;
         }
         
-        textarea:focus, input[type="text"]:focus, input[type="number"]:focus {
+        textarea:focus, input[type="text"]:focus, input[type="number"]:focus, select:focus {
             border-color: #4CAF50;
             outline: none;
         }
@@ -168,37 +157,20 @@
             background-color: #F57C00;
         }
         
-        .qr-code {
-            width: 200px;
-            height: 200px;
-            background-color: #f0f0f0;
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            overflow: hidden;
+        #citySelect {
+            margin-bottom: 15px;
         }
         
-        .qr-code img {
-            max-width: 100%;
-            max-height: 100%;
-        }
-        
-        .qr-text {
-            text-align: center;
-            color: #666;
+        #weatherTip {
+            color: #4CAF50;
             font-size: 0.9rem;
-            margin-top: 10px;
+            margin-top: 5px;
+            margin-bottom: 10px;
         }
         
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
-            }
-            
-            .qr-section {
-                order: -1;
             }
             
             .weather-grid {
@@ -232,7 +204,45 @@
                 </div>
                 
                 <div class="form-group">
-                    <label>天气实时状况</label>
+                    <label>天气实时状况（选择城市自动填充）</label>
+                    <select id="citySelect">
+                        <option value="110000">直辖市-北京</option>
+                        <option value="120000">直辖市-天津</option>
+                        <option value="310000">直辖市-上海</option>
+                        <option value="500000">直辖市-重庆</option>
+                        <option value="130100">河北-石家庄</option>
+                        <option value="140100">山西-太原</option>
+                        <option value="150100">内蒙古-呼和浩特</option>
+                        <option value="210100">辽宁-沈阳</option>
+                        <option value="220100">吉林-长春</option>
+                        <option value="230100">黑龙江-哈尔滨</option>
+                        <option value="320100">江苏-南京</option>
+                        <option value="330100">浙江-杭州</option>
+                        <option value="340100">安徽-合肥</option>
+                        <option value="350100">福建-福州</option>
+                        <option value="360100">江西-南昌</option>
+                        <option value="370100">山东-济南</option>
+                        <option value="410100">河南-郑州</option>
+                        <option value="420100">湖北-武汉</option>
+                        <option value="430100">湖南-长沙</option>
+                        <option value="440100">广东-广州</option>
+                        <option value="440300">广东-深圳（计划单列市）</option>
+                        <option value="450100">广西-南宁</option>
+                        <option value="460100">海南-海口</option>
+                        <option value="510100">四川-成都</option>
+                        <option value="520100">贵州-贵阳</option>
+                        <option value="530100">云南-昆明</option>
+                        <option value="540100">西藏-拉萨</option>
+                        <option value="610100">陕西-西安</option>
+                        <option value="620100">甘肃-兰州</option>
+                        <option value="621221">甘肃-成县</option>
+                        <option value="630100">青海-西宁</option>
+                        <option value="640100">宁夏-银川</option>
+                        <option value="650100">新疆-乌鲁木齐</option>
+                        <option value="350200">福建-厦门（计划单列市）</option>
+                        <option value="370200">山东-青岛（计划单列市）</option>
+                    </select>
+                    <div id="weatherTip">正在加载实时天气...</div>
                     <div class="weather-grid">
                         <div>
                             <label for="temperature">温度 (°C)</label>
@@ -255,18 +265,6 @@
                 
                 <button class="identify-btn" id="identifyBtn">开始识别</button>
             </div>
-            
-            <div class="qr-section">
-                <h2 class="section-title">系统访问二维码</h2>
-                <div class="qr-code">
-                    <!-- 这里实际使用时需要替换为真实的二维码 -->
-                    <div style="text-align: center; color: #666;">
-                        <div style="font-size: 80px;">📱</div>
-                        <div style="font-size: 14px; margin-top: 10px;">扫描二维码访问系统</div>
-                    </div>
-                </div>
-                <p class="qr-text">使用手机扫描二维码<br>随时随地识别果实病害</p >
-            </div>
         </div>
     </div>
 
@@ -276,40 +274,43 @@
             const uploadBtn = document.getElementById('uploadBtn');
             const imageUpload = document.getElementById('imageUpload');
             const identifyBtn = document.getElementById('identifyBtn');
-            
-            // 上传图片功能
+            const citySelect = document.getElementById('citySelect');
+            const temperatureInput = document.getElementById('temperature');
+            const humidityInput = document.getElementById('humidity');
+            const radiationInput = document.getElementById('radiation');
+            const precipitationInput = document.getElementById('precipitation');
+            const weatherTip = document.getElementById('weatherTip');
+            const GAODE_API_KEY = "c25c9834d4ee66d6f6a2e85e1f7ea16c";
+
             uploadBtn.addEventListener('click', function() {
                 imageUpload.click();
             });
-            
+
             uploadArea.addEventListener('dragover', function(e) {
                 e.preventDefault();
                 uploadArea.style.backgroundColor = '#E8F5E9';
             });
-            
+
             uploadArea.addEventListener('dragleave', function() {
                 uploadArea.style.backgroundColor = '#F1F8E9';
             });
-            
+
             uploadArea.addEventListener('drop', function(e) {
                 e.preventDefault();
                 uploadArea.style.backgroundColor = '#F1F8E9';
-                
                 if (e.dataTransfer.files.length) {
                     imageUpload.files = e.dataTransfer.files;
                     handleImageUpload(e.dataTransfer.files[0]);
                 }
             });
-            
+
             imageUpload.addEventListener('change', function() {
                 if (this.files.length) {
                     handleImageUpload(this.files[0]);
                 }
             });
-            
+
             function handleImageUpload(file) {
-                // 这里实际应用中应该上传到服务器
-                // 这里只是模拟上传成功
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     uploadArea.innerHTML = `
@@ -320,41 +321,70 @@
                             <button class="upload-btn" id="changeImageBtn">更换图像</button>
                         </div>
                     `;
-                    
                     document.getElementById('changeImageBtn').addEventListener('click', function() {
                         imageUpload.click();
                     });
                 };
                 reader.readAsDataURL(file);
             }
-            
-            // 识别按钮点击事件 - 跳转到结果页面
+
+            getRealTimeWeather(citySelect.value);
+
+            citySelect.addEventListener('change', function() {
+                weatherTip.textContent = "正在更新实时天气...";
+                getRealTimeWeather(this.value);
+            });
+
+            function getRealTimeWeather(cityCode) {
+                const weatherUrl = `https://restapi.amap.com/v3/weather/weatherInfo?key=${GAODE_API_KEY}&city=${cityCode}&extensions=base`;
+                fetch(weatherUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "1" && data.lives.length > 0) {
+                            const weatherData = data.lives[0];
+                            temperatureInput.value = weatherData.temperature;
+                            humidityInput.value = weatherData.humidity;
+                            radiationInput.value = getDefaultRadiation(weatherData.weather);
+                            precipitationInput.value = weatherData.precipitation || 0;
+                            weatherTip.textContent = `✅ 已加载${weatherData.city}实时天气`;
+                        } else {
+                            weatherTip.textContent = "❌ 天气加载失败，请重试";
+                        }
+                    })
+                    .catch(err => {
+                        weatherTip.textContent = "❌ 网络异常，天气加载失败";
+                        console.error("天气API错误：", err);
+                    });
+            }
+
+            function getDefaultRadiation(weatherType) {
+                if (weatherType.includes("晴")) return 600;
+                if (weatherType.includes("多云")) return 450;
+                if (weatherType.includes("阴")) return 300;
+                if (weatherType.includes("雨")) return 200;
+                return 400;
+            }
+
             identifyBtn.addEventListener('click', function() {
-                // 验证输入
                 if (!imageUpload.files.length) {
                     alert('请先上传病害图像');
                     return;
                 }
-                
                 if (!document.getElementById('diseaseDesc').value.trim()) {
                     alert('请输入病害特征描述');
                     return;
                 }
-                
-                // 收集数据
+
                 const formData = {
                     image: imageUpload.files[0].name,
                     description: document.getElementById('diseaseDesc').value,
-                    temperature: document.getElementById('temperature').value || '25',
-                    humidity: document.getElementById('humidity').value || '65',
-                    radiation: document.getElementById('radiation').value || '450',
-                    precipitation: document.getElementById('precipitation').value || '0'
+                    city: citySelect.options[citySelect.selectedIndex].text,
+                    temperature: temperatureInput.value || '25',
+                    humidity: humidityInput.value || '65',
+                    radiation: radiationInput.value || '450',
+                    precipitation: precipitationInput.value || '0'
                 };
-                
-                // 存储数据到sessionStorage，以便结果页面使用
                 sessionStorage.setItem('diseaseData', JSON.stringify(formData));
-                
-                // 跳转到结果页面
                 window.location.href = 'result.html';
             });
         });
